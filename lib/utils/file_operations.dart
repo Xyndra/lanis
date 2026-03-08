@@ -7,6 +7,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:mime/mime.dart';
+import 'package:path/path.dart' as p;
+import 'package:xdg_directories/xdg_directories.dart' as xdg;
 
 import '../core/sph/sph.dart';
 import 'file_icons.dart';
@@ -197,9 +199,74 @@ void launchFile(BuildContext context, FileInfo file, Function callback) {
   });
 }
 
+/// Saves a file to ~/Downloads on Linux using XDG directories.
+Future<void> _saveFileLinux(
+  BuildContext context,
+  FileInfo file,
+  String filename,
+  Function callback,
+) async {
+  // Resolve the XDG download directory (falls back to ~/Downloads).
+  final downloadsDir = xdg.getUserDirectory('DOWNLOAD') ??
+      Directory(p.join(Platform.environment['HOME'] ?? '', 'Downloads'));
+
+  Future<void> copyToDownloads(String sourcePath) async {
+    if (!downloadsDir.existsSync()) {
+      downloadsDir.createSync(recursive: true);
+    }
+    final destPath = p.join(downloadsDir.path, filename);
+    await File(sourcePath).copy(destPath);
+  }
+
+  if (file.isLocal) {
+    await copyToDownloads(file.localPath!);
+    callback();
+    return;
+  }
+
+  if (!context.mounted) return;
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => downloadDialog(ctx, file.size),
+  );
+
+  final filepath =
+      await sph!.storage.downloadFile(file.url.toString(), filename);
+
+  if (context.mounted) Navigator.of(context).pop();
+
+  if (filepath.isEmpty) {
+    if (context.mounted) {
+      showDialog(context: context, builder: (ctx) => errorDialog(ctx));
+    }
+    return;
+  }
+
+  await copyToDownloads(filepath);
+
+  if (context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${AppLocalizations.of(context).saveFile}: ${downloadsDir.path}/$filename',
+        ),
+      ),
+    );
+  }
+
+  callback();
+}
+
 void saveFile(BuildContext context, FileInfo file, Function callback) {
-  const platform = MethodChannel('io.github.lanis-mobile/storage');
   final String filename = file.name ?? AppLocalizations.of(context).unknownFile;
+
+  if (Platform.isLinux) {
+    _saveFileLinux(context, file, filename, callback);
+    return;
+  }
+
+  const platform = MethodChannel('io.github.lanis-mobile/storage');
 
   if (file.isLocal) {
     // For local files, just save directly

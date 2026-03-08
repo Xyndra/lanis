@@ -27,6 +27,18 @@ class _LessonListTileState extends State<LessonListTile> {
     return false;
   }
 
+  void _navigateToCourse() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CourseOverviewAnsicht(
+          dataFetchURL: widget.lesson.courseURL.toString(),
+          title: widget.lesson.name,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Badge(
@@ -74,6 +86,7 @@ class _LessonListTileState extends State<LessonListTile> {
                 HomeworkBox(
                   currentEntry: widget.lesson.currentEntry!,
                   courseID: widget.lesson.courseID,
+                  onTap: _navigateToCourse,
                 ),
                 const SizedBox(height: 4),
               ],
@@ -108,17 +121,7 @@ class _LessonListTileState extends State<LessonListTile> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CourseOverviewAnsicht(
-                  dataFetchURL: widget.lesson.courseURL.toString(),
-                  title: widget.lesson.name,
-                ),
-              ),
-            );
-          },
+          onTap: _navigateToCourse,
         ),
       ),
     );

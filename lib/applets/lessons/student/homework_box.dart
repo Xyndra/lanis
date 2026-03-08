@@ -8,10 +8,12 @@ import '../../../widgets/format_text.dart';
 class HomeworkBox extends StatefulWidget {
   final CurrentEntry currentEntry;
   final String courseID;
+  final VoidCallback? onTap;
   const HomeworkBox({
     super.key,
     required this.currentEntry,
     required this.courseID,
+    this.onTap,
   });
 
   @override
@@ -154,26 +156,40 @@ class _HomeworkBoxState extends State<HomeworkBox> with WidgetsBindingObserver {
                 const SizedBox(width: 4),
               ],
             ),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                // Default card color as ground color with primary color on top. (primary with opacity 0.1)
-                color: Color.alphaBlend(
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-                  Theme.of(context).cardColor,
+            Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    // Default card color as ground color with primary color on top. (primary with opacity 0.1)
+                    color: Color.alphaBlend(
+                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                      Theme.of(context).cardColor,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.only(
+                    left: 12.0,
+                    right: 12.0,
+                    top: 8.0,
+                    bottom: 8.0,
+                  ),
+                  child: FormattedText(
+                    text: widget.currentEntry.homework!.description,
+                    formatStyle: DefaultFormatStyle(context: context),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.only(
-                left: 12.0,
-                right: 12.0,
-                top: 8.0,
-                bottom: 8.0,
-              ),
-              child: FormattedText(
-                text: widget.currentEntry.homework!.description,
-                formatStyle: DefaultFormatStyle(context: context),
-              ),
+                // On desktop, SelectionArea inside FormattedText intercepts taps for
+                // text cursor placement, preventing ListTile.onTap from firing.
+                // This transparent overlay reclaims the tap to trigger navigation.
+                if (widget.onTap != null)
+                  Positioned.fill(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTap: widget.onTap,
+                    ),
+                  ),
+              ],
             ),
           ],
         ),
