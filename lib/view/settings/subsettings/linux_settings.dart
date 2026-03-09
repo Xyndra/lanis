@@ -21,11 +21,13 @@ class _LinuxSettingsState extends SettingsColoursState<LinuxSettings> {
   String? _currentDir;
   String? _defaultDir;
   bool _isBusy = false;
+  String? _flatpakId;
 
   @override
   void initState() {
     super.initState();
     _currentDir = LinuxConfig.dataDir;
+    _flatpakId = Platform.environment['FLATPAK_ID'];
     getApplicationCacheDirectory().then((d) {
       if (mounted) setState(() => _defaultDir = d.path);
     });
@@ -171,6 +173,59 @@ class _LinuxSettingsState extends SettingsColoursState<LinuxSettings> {
       showBackButton: widget.showBackButton,
       title: Text(AppLocalizations.of(context).linuxSettings),
       children: [
+        if (_flatpakId != null) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16.0, vertical: 8.0),
+            child: Card(
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      Icon(Icons.info_outline,
+                          size: 16,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSecondaryContainer),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Flatpak Sandbox',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer,
+                              ),
+                        ),
+                      ),
+                    ]),
+                    const SizedBox(height: 6),
+                    Text(
+                      'All app data lives inside the Flatpak sandbox at:\n'
+                      '  ~/.var/app/$_flatpakId/\n\n'
+                      '  config/   – configuration & config.json\n'
+                      '  cache/    – databases (default data dir)\n\n'
+                      'Login credentials are stored in the system keyring '
+                      '(GNOME Keyring / KWallet), not in files.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSecondaryContainer,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Text(

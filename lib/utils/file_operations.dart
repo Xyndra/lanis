@@ -12,6 +12,7 @@ import 'package:xdg_directories/xdg_directories.dart' as xdg;
 
 import '../core/sph/sph.dart';
 import 'file_icons.dart';
+import 'native_file_opener.dart';
 
 class FileInfo {
   String? name;
@@ -154,14 +155,14 @@ void launchFile(BuildContext context, FileInfo file, Function callback) {
 }
 
 /// Opens a local file using the platform's default application.
-/// On Linux (incl. Flatpak) uses url_launcher / XDG portal.
+/// On Linux (incl. Flatpak) uses the native GTK/GIO portal via method channel.
 /// On other platforms uses open_file.
 void _openFilePath(BuildContext context, String filepath, Function callback) {
   if (Platform.isLinux) {
-    launchUrl(Uri.file(filepath)).then((_) {
-      callback();
-    }).catchError((_) {
-      if (context.mounted) {
+    openFileNative(filepath).then((success) {
+      if (success) {
+        callback();
+      } else if (context.mounted) {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(

@@ -9,6 +9,7 @@ import '../../../utils/file_operations.dart';
 import '../../../widgets/format_text.dart';
 import 'homework_box.dart';
 import '../../../widgets/lesson_note_button.dart';
+import '../../../widgets/lesson_note_content.dart';
 
 class CourseOverviewAnsicht extends StatefulWidget {
   final String dataFetchURL;
@@ -290,43 +291,36 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 8),
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Row(
-                                        children: [
-                                          const Padding(
-                                            padding: EdgeInsets.only(
-                                              right: 4.0,
-                                            ),
-                                            child: Icon(
-                                              Icons.calendar_today,
-                                              size: 15,
-                                            ),
-                                          ),
-                                          Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            ).dateWithHours(
-                                              dateFormat.format(
-                                                data!.history[index].topicDate!,
-                                              ),
-                                              data!
-                                                      .history[index]
-                                                      .schoolHours ??
-                                                  "",
-                                            ),
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.labelSmall,
-                                          ),
-                                        ],
+                                      const Padding(
+                                        padding: EdgeInsets.only(
+                                          right: 4.0,
+                                        ),
+                                        child: Icon(
+                                          Icons.calendar_today,
+                                          size: 15,
+                                        ),
                                       ),
-                                      Visibility(
-                                        visible:
-                                            data!.history[index].presence !=
-                                            null,
-                                        child: Row(
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        ).dateWithHours(
+                                          dateFormat.format(
+                                            data!.history[index].topicDate!,
+                                          ),
+                                          data!
+                                                  .history[index]
+                                                  .schoolHours ??
+                                              "",
+                                        ),
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.labelSmall,
+                                      ),
+                                      const Spacer(),
+                                      if (data!.history[index].presence !=
+                                          null)
+                                        Row(
                                           children: [
                                             Text(
                                               (data!.history[index].presence ??
@@ -366,7 +360,13 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                             ),
                                           ],
                                         ),
-                                      ),
+                                      if (data!.history[index].homework ==
+                                          null)
+                                        LessonNoteButton(
+                                          courseID: data!.courseID,
+                                          entryID:
+                                              data!.history[index].entryID,
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -400,12 +400,9 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                     courseID: data!.courseID,
                                   )
                                 else
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: LessonNoteButton(
-                                      courseID: data!.courseID,
-                                      entryID: data!.history[index].entryID,
-                                    ),
+                                  LessonNoteContent(
+                                    courseID: data!.courseID,
+                                    entryID: data!.history[index].entryID,
                                   ),
                                 Visibility(
                                   visible: files.isNotEmpty,

@@ -6,6 +6,7 @@ import '../../../models/lessons.dart';
 import 'course_overview.dart';
 import 'homework_box.dart';
 import '../../../widgets/lesson_note_button.dart';
+import '../../../widgets/lesson_note_content.dart';
 
 class LessonListTile extends StatefulWidget {
   final Lesson lesson;
@@ -70,6 +71,15 @@ class _LessonListTileState extends State<LessonListTile> {
                 ),
                 const Icon(Icons.attach_file, size: 16),
               ],
+              // Note button in title row for entries without homework
+              if (widget.lesson.currentEntry != null &&
+                  widget.lesson.currentEntry!.homework == null) ...[
+                const SizedBox(width: 4),
+                LessonNoteButton(
+                  courseID: widget.lesson.courseID,
+                  entryID: widget.lesson.currentEntry!.entryID,
+                ),
+              ],
             ],
           ),
           subtitle: Column(
@@ -90,14 +100,12 @@ class _LessonListTileState extends State<LessonListTile> {
                   onTap: _navigateToCourse,
                 ),
                 const SizedBox(height: 4),
-              ] else if (widget.lesson.currentEntry != null)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: LessonNoteButton(
-                    courseID: widget.lesson.courseID,
-                    entryID: widget.lesson.currentEntry!.entryID,
-                  ),
+              ] else if (widget.lesson.currentEntry != null) ...[
+                LessonNoteContent(
+                  courseID: widget.lesson.courseID,
+                  entryID: widget.lesson.currentEntry!.entryID,
                 ),
+              ],
               const SizedBox(height: 8),
               Row(
                 children: [

@@ -11,6 +11,7 @@ struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
   FlMethodChannel* color_picker_channel;
+  FlMethodChannel* file_opener_channel;
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
@@ -95,6 +96,45 @@ static void color_picker_method_call_handler(FlMethodChannel* channel,
   gtk_widget_show(dialog);
 }
 
+// ── GTK / GIO file opener method channel ────────────────────────────────────
+
+static void file_opener_method_call_handler(FlMethodChannel* channel,
+                                            FlMethodCall* method_call,
+                                            gpointer user_data) {
+  if (strcmp(fl_method_call_get_name(method_call), "open") != 0) {
+    g_autoptr(FlMethodNotImplementedResponse) resp =
+        fl_method_not_implemented_response_new();
+    fl_method_call_respond(method_call, FL_METHOD_RESPONSE(resp), nullptr);
+    return;
+  }
+
+  FlValue* args = fl_method_call_get_args(method_call);
+  FlValue* path_val =
+      (args && fl_value_get_type(args) == FL_VALUE_TYPE_MAP)
+          ? fl_value_lookup_string(args, "path")
+          : nullptr;
+
+  if (!path_val || fl_value_get_type(path_val) != FL_VALUE_TYPE_STRING) {
+    fl_method_call_respond_error(method_call, "BAD_ARG", "Missing path",
+                                 nullptr, nullptr);
+    return;
+  }
+
+  const gchar* path = fl_value_get_string(path_val);
+  gchar* uri = g_strdup_printf("file://%s", path);
+
+  GError* error = nullptr;
+  gboolean ok =
+      g_app_info_launch_default_for_uri(uri, nullptr, &error);
+  g_free(uri);
+  if (error) g_error_free(error);
+
+  g_autoptr(FlValue) result = fl_value_new_bool(ok);
+  g_autoptr(FlMethodSuccessResponse) resp =
+      fl_method_success_response_new(result);
+  fl_method_call_respond(method_call, FL_METHOD_RESPONSE(resp), nullptr);
+}
+
 // ── Flutter window setup ─────────────────────────────────────────────────────
 
 // Called when first Flutter frame received.
@@ -170,6 +210,17 @@ static void my_application_activate(GApplication* application) {
       self,
       nullptr);
 
+  // Register the file opener method channel.
+  self->file_opener_channel = fl_method_channel_new(
+      fl_engine_get_binary_messenger(fl_view_get_engine(view)),
+      "io.github.lanis-mobile/file_opener",
+      FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(
+      self->file_opener_channel,
+      file_opener_method_call_handler,
+      self,
+      nullptr);
+
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
 
@@ -217,6 +268,7 @@ static void my_application_dispose(GObject* object) {
   MyApplication* self = MY_APPLICATION(object);
   g_clear_pointer(&self->dart_entrypoint_arguments, g_strfreev);
   g_clear_object(&self->color_picker_channel);
+  g_clear_object(&self->file_opener_channel);
   G_OBJECT_CLASS(my_application_parent_class)->dispose(object);
 }
 
