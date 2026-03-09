@@ -97,6 +97,28 @@ static void color_picker_method_call_handler(FlMethodChannel* channel,
 }
 
 // ── GTK / GIO file opener method channel ────────────────────────────────────
+// Uses g_app_info_launch_default_for_uri_async (portal-aware async variant).
+// The Dart side must pass a path the host portal can access (e.g. inside
+// xdg-download which is shared with --filesystem=xdg-download).
+
+typedef struct {
+  FlMethodCall* method_call;
+} OpenFilePortalData;
+
+static void on_open_uri_done(GObject* source_object, GAsyncResult* res,
+                             gpointer user_data) {
+  OpenFilePortalData* data = (OpenFilePortalData*)user_data;
+  GError* error = nullptr;
+  gboolean ok = g_app_info_launch_default_for_uri_finish(res, &error);
+  if (error) {
+    g_error_free(error);
+  }
+  g_autoptr(FlValue) val = fl_value_new_bool(ok);
+  g_autoptr(FlMethodSuccessResponse) resp = fl_method_success_response_new(val);
+  fl_method_call_respond(data->method_call, FL_METHOD_RESPONSE(resp), nullptr);
+  g_object_unref(data->method_call);
+  g_free(data);
+}
 
 static void file_opener_method_call_handler(FlMethodChannel* channel,
                                             FlMethodCall* method_call,
@@ -123,16 +145,11 @@ static void file_opener_method_call_handler(FlMethodChannel* channel,
   const gchar* path = fl_value_get_string(path_val);
   gchar* uri = g_strdup_printf("file://%s", path);
 
-  GError* error = nullptr;
-  gboolean ok =
-      g_app_info_launch_default_for_uri(uri, nullptr, &error);
+  OpenFilePortalData* cb_data = g_new(OpenFilePortalData, 1);
+  cb_data->method_call = FL_METHOD_CALL(g_object_ref(method_call));
+  g_app_info_launch_default_for_uri_async(uri, nullptr, nullptr,
+                                          on_open_uri_done, cb_data);
   g_free(uri);
-  if (error) g_error_free(error);
-
-  g_autoptr(FlValue) result = fl_value_new_bool(ok);
-  g_autoptr(FlMethodSuccessResponse) resp =
-      fl_method_success_response_new(result);
-  fl_method_call_respond(method_call, FL_METHOD_RESPONSE(resp), nullptr);
 }
 
 // ── Flutter window setup ─────────────────────────────────────────────────────

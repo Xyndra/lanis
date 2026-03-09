@@ -154,30 +154,81 @@ void launchFile(BuildContext context, FileInfo file, Function callback) {
   });
 }
 
+/// In Flatpak, the sandbox's /tmp is a private namespace the portal cannot
+/// reach.  Copy the file to a temp dir inside the XDG download dir (shared
+/// via --filesystem=xdg-download) so g_app_info_launch_default_for_uri_async
+/// can open it.  Outside Flatpak the path is returned unchanged.
+///
+/// Uses browser-style versioning: if a file with the same name already exists
+/// but has different content, a numbered suffix is appended (e.g. "doc (1).pdf").
+/// An existing file with identical content is reused without copying.
+Future<String> _portalAccessiblePath(String path) async {
+  if (Platform.environment['FLATPAK_ID'] == null) return path;
+  try {
+    final downloadsDir = xdg.getUserDirectory('DOWNLOAD') ??
+        Directory(p.join(Platform.environment['HOME'] ?? '', 'Downloads'));
+    final tmpDir = Directory(p.join(downloadsDir.path, '.lanis-tmp'));
+    tmpDir.createSync(recursive: true);
+
+    final source = File(path);
+    final sourceBytes = await source.readAsBytes();
+
+    final basename = p.basenameWithoutExtension(path);
+    final ext = p.extension(path); // includes leading dot
+
+    // Browser-style: find a slot where either the file doesn't exist yet, or
+    // the existing file already has the same content (so we can reuse it).
+    for (int i = 0; ; i++) {
+      final name = i == 0 ? '$basename$ext' : '$basename ($i)$ext';
+      final candidate = File(p.join(tmpDir.path, name));
+      if (!candidate.existsSync()) {
+        await source.copy(candidate.path);
+        return candidate.path;
+      }
+      final existingBytes = await candidate.readAsBytes();
+      if (_bytesEqual(existingBytes, sourceBytes)) {
+        return candidate.path; // same content → reuse
+      }
+    }
+  } catch (e) {
+    return path; // fall back to original path
+  }
+}
+
+bool _bytesEqual(List<int> a, List<int> b) {
+  if (a.length != b.length) return false;
+  for (int i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
+
 /// Opens a local file using the platform's default application.
-/// On Linux (incl. Flatpak) uses the native GTK/GIO portal via method channel.
-/// On other platforms uses open_file.
+/// In Flatpak, copies to a subdir of XDG_DOWNLOAD_DIR (shared between
+/// sandbox and host) so the portal can reach the file.
 void _openFilePath(BuildContext context, String filepath, Function callback) {
   if (Platform.isLinux) {
-    openFileNative(filepath).then((success) {
-      if (success) {
-        callback();
-      } else if (context.mounted) {
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text("${AppLocalizations.of(ctx).error}!"),
-            icon: const Icon(Icons.error),
-            content: Text(AppLocalizations.of(ctx).noAppToOpen),
-            actions: [
-              FilledButton(
-                child: const Text('Ok'),
-                onPressed: () => Navigator.of(ctx).pop(),
-              ),
-            ],
-          ),
-        );
-      }
+    _portalAccessiblePath(filepath).then((sharedPath) {
+      openFileNative(sharedPath).then((success) {
+        if (success) {
+          callback();
+        } else if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text("${AppLocalizations.of(ctx).error}!"),
+              icon: const Icon(Icons.error),
+              content: Text(AppLocalizations.of(ctx).noAppToOpen),
+              actions: [
+                FilledButton(
+                  child: const Text('Ok'),
+                  onPressed: () => Navigator.of(ctx).pop(),
+                ),
+              ],
+            ),
+          );
+        }
+      });
     });
     return;
   }
