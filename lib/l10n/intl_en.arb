@@ -402,5 +402,6 @@
   "openIOSSettingsToChangeLanguage": "On the next screen, select \"Lanis\" and then change the language in the \"Preferred Language\" section.",
   "copy": "Copy",
   "openExternalUrl": "Open external URL",
-  "openExternalUrlDescription": "Do you want to open the following URL in your browser?"
+  "openExternalUrlDescription": "Do you want to open the following URL in your browser?",
+  "moodleLinuxHint": "Moodle can't be shown in-app on Linux.\nIt will open in your system browser."
 }

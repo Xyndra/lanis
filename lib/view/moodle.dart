@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' as io;
 
 import 'package:dio_cookie_manager/dio_cookie_manager.dart' as dio_plugin;
 import 'package:cookie_jar/cookie_jar.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:lanis/generated/l10n.dart';
-import 'dart:io' as dio_core;
 
 import '../core/connection_checker.dart';
 import '../core/native_adapter_instance.dart';
@@ -37,7 +37,9 @@ class MoodleWebView extends StatefulWidget {
 class _MoodleWebViewState extends State<MoodleWebView> {
   static const noInternetError = "net::ERR_INTERNET_DISCONNECTED";
 
-  final CookieManager cookieManager = CookieManager.instance();
+  // CookieManager is InAppWebView-specific; not available on Linux.
+  CookieManager? get _cookieManager =>
+      io.Platform.isLinux ? null : CookieManager.instance();
 
   ValueNotifier<bool> canGoBack = ValueNotifier(false);
   ValueNotifier<bool> canGoForward = ValueNotifier(false);
@@ -58,11 +60,11 @@ class _MoodleWebViewState extends State<MoodleWebView> {
   PullToRefreshController? pullToRefreshController;
 
   void addWebViewCookies(
-    final List<dio_core.Cookie> cookies,
+    final List<io.Cookie> cookies,
     List<String> urls,
   ) {
     for (int i = 0; i < cookies.length; i++) {
-      cookieManager.setCookie(
+      _cookieManager!.setCookie(
         url: WebUri(urls[i]),
         name: cookies[i].name,
         value: cookies[i].value,
@@ -110,7 +112,7 @@ class _MoodleWebViewState extends State<MoodleWebView> {
       );
       dio.interceptors.add(dio_plugin.CookieManager(jar));
 
-      final lastSchoolCookie = dio_core.Cookie(
+      final lastSchoolCookie = io.Cookie(
         "schulportal_lastschool",
         sph!.account.schoolID.toString(),
       );
@@ -201,7 +203,7 @@ class _MoodleWebViewState extends State<MoodleWebView> {
       setState(() {
         isLoginError = true;
 
-        if (e is dio_core.SocketException || e is DioException) {
+        if (e is io.SocketException || e is DioException) {
           loginError = "Netzwerkfehler - $e";
         } else {
           loginError = e.toString();
@@ -228,13 +230,15 @@ class _MoodleWebViewState extends State<MoodleWebView> {
   @override
   void initState() {
     super.initState();
-
-    getCookies();
+    if (!io.Platform.isLinux) {
+      getCookies();
+    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (io.Platform.isLinux) return;
 
     pullToRefreshController ??= PullToRefreshController(
       settings: PullToRefreshSettings(
@@ -252,8 +256,42 @@ class _MoodleWebViewState extends State<MoodleWebView> {
     }
   }
 
+  /// Linux fallback: no embedded webview available; open in system browser.
+  Widget _buildLinuxFallback(BuildContext context) {
+    final moodleUrl = Uri.parse(
+      'https://mo${sph!.account.schoolID}.schulportal.hessen.de',
+    );
+    return Scaffold(
+      appBar: AppBar(title: const Text('Moodle')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.open_in_browser,
+                size: 64,
+                color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 24),
+            Text(
+              AppLocalizations.of(context).moodleLinuxHint,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              icon: const Icon(Icons.open_in_new),
+              label: const Text('Moodle'),
+              onPressed: () => launchUrl(moodleUrl,
+                  mode: LaunchMode.externalApplication),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (io.Platform.isLinux) return _buildLinuxFallback(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Moodle"),
