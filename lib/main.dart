@@ -11,6 +11,7 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:lanis/utils/logger.dart';
 import 'package:lanis/utils/mono_text_viewer.dart';
+import 'package:lanis/core/linux_config.dart';
 import 'package:lanis/core/sph/sph.dart';
 import 'package:lanis/generated/l10n.dart';
 import 'package:lanis/startup.dart';
@@ -35,6 +36,10 @@ void main() async {
         return errorWidget(details);
       };
     }
+
+    // Load Linux config BEFORE opening any database so that custom dataDir
+    // is available when _openConnection() is first called.
+    await LinuxConfig.load();
 
     await moveDatabases();
 

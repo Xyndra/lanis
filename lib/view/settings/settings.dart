@@ -4,6 +4,7 @@ import 'package:app_settings/app_settings.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lanis/core/linux_config.dart';
 import 'package:lanis/applets/calendar/definition.dart';
 import 'package:lanis/applets/timetable/definition.dart';
 import 'package:lanis/applets/timetable/student/student_timetable_settings.dart';
@@ -16,6 +17,7 @@ import 'package:lanis/view/settings/subsettings/appearance.dart';
 import 'package:lanis/view/settings/subsettings/cache.dart';
 import 'package:lanis/view/settings/subsettings/notifications.dart';
 import 'package:lanis/view/settings/subsettings/quick_actions.dart';
+import 'package:lanis/view/settings/subsettings/linux_settings.dart';
 import 'package:lanis/view/settings/subsettings/userdata.dart';
 
 import '../../applets/calendar/calendar_export.dart';
@@ -189,6 +191,17 @@ class _SettingsScreenState extends SettingsColoursState<SettingsScreen> {
             ),
           ),
         ),
+        if (Platform.isLinux)
+          SettingsTile(
+            title: (context) => AppLocalizations.of(context).linuxSettings,
+            subtitle: (context) async =>
+                LinuxConfig.dataDir ?? AppLocalizations.of(context).dataDirSectionTitle,
+            icon: Icons.storage_rounded,
+            screen: (context) => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LinuxSettings()),
+            ),
+          ),
       ],
     ),
     if (sph!.session.doesSupportFeature(calendarDefinition) ||

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:lanis/applets/timetable/student/timetable_helper.dart';
 import 'package:lanis/generated/l10n.dart';
 import 'package:lanis/models/timetable.dart';
 import 'package:lanis/utils/extensions.dart';
+import 'package:lanis/utils/native_color_picker.dart';
 
 class ItemBlock extends StatelessWidget {
   final TimetableSubject? subject;
@@ -44,7 +46,29 @@ class ItemBlock extends StatelessWidget {
     Function updateSettings,
     TimetableSubject lesson,
   ) {
-    Color selectedColor = TimeTableHelper.getColorForLesson(settings, lesson);
+    final Color initial = TimeTableHelper.getColorForLesson(settings, lesson);
+    final String lessonKey = lesson.id!.split('-')[0];
+
+    void applyColor(Color? color) {
+      if (settings['lesson-colors'] == null) {
+        settings['lesson-colors'] = {};
+      }
+      updateSettings('lesson-colors', {
+        ...settings['lesson-colors'],
+        lessonKey: color?.toHexString(enableAlpha: false),
+      });
+    }
+
+    if (Platform.isLinux) {
+      // Use the native GTK colour chooser asynchronously.
+      pickColorNative(initial).then((picked) {
+        if (picked != null) applyColor(picked);
+      });
+      return;
+    }
+
+    // Fallback: Flutter colour picker wheel (Android / iOS / other).
+    Color selectedColor = initial;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -61,11 +85,7 @@ class ItemBlock extends StatelessWidget {
             ElevatedButton(
               child: Text(AppLocalizations.of(context).clear),
               onPressed: () {
-                updateSettings('lesson-colors', {
-                  ...settings['lesson-colors'],
-                  lesson.id!.split('-')[0]: null,
-                });
-
+                applyColor(null);
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
@@ -75,16 +95,7 @@ class ItemBlock extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
-
-                if (settings['lesson-colors'] == null) {
-                  settings['lesson-colors'] = {};
-                }
-                updateSettings('lesson-colors', {
-                  ...settings['lesson-colors'],
-                  lesson.id!.split('-')[0]: selectedColor.toHexString(
-                    enableAlpha: false,
-                  ),
-                });
+                applyColor(selectedColor);
               },
             ),
           ],

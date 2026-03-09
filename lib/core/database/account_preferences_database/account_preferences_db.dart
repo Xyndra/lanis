@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../linux_config.dart';
 import 'kv_defaults.dart';
 
 part 'account_preferences_db.g.dart';
@@ -44,12 +46,23 @@ class AppletData extends Table {
   Set<Column> get primaryKey => {appletId};
 }
 
+/// User-authored notes attached to a specific homework entry.
+class HomeworkNotesTable extends Table {
+  TextColumn get courseId => text()();
+  TextColumn get entryId => text()();
+  TextColumn get note => text()();
+
+  @override
+  Set<Column> get primaryKey => {courseId, entryId};
+}
+
 @DriftDatabase(
   tables: [
     AppPreferencesTable,
     AppletPreferencesTable,
     AppletData,
     NotificationsDuplicatesTable,
+    HomeworkNotesTable,
   ],
 )
 class AccountPreferencesDatabase extends _$AccountPreferencesDatabase {
@@ -60,13 +73,33 @@ class AccountPreferencesDatabase extends _$AccountPreferencesDatabase {
     : super(_openConnection(localId));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      await m.createAll();
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 2) {
+        await m.createTable(homeworkNotesTable);
+      }
+    },
+  );
 
   static QueryExecutor _openConnection(int id) {
     return driftDatabase(
       name: 'session_${id}_db',
       native: DriftNativeOptions(
-        databaseDirectory: () async => await getApplicationCacheDirectory(),
+        databaseDirectory: () async {
+          final custom = LinuxConfig.dataDir;
+          if (custom != null) {
+            final dir = Directory(custom);
+            dir.createSync(recursive: true);
+            return dir;
+          }
+          return getApplicationCacheDirectory();
+        },
       ),
     );
   }
@@ -117,6 +150,49 @@ class AccountPreferencesDatabase extends _$AccountPreferencesDatabase {
 
   Future<List<AppletDataData>> getAllAppletData(String appletId) async {
     return select(appletData).get();
+  }
+
+  // ── Homework notes ────────────────────────────────────────────────────────
+
+  Future<String?> getHomeworkNote(String courseId, String entryId) async {
+    final row = await (select(homeworkNotesTable)
+          ..where(
+            (t) => t.courseId.equals(courseId) & t.entryId.equals(entryId),
+          ))
+        .getSingleOrNull();
+    return row?.note;
+  }
+
+  Stream<String?> watchHomeworkNote(String courseId, String entryId) {
+    return (select(homeworkNotesTable)
+          ..where(
+            (t) => t.courseId.equals(courseId) & t.entryId.equals(entryId),
+          ))
+        .watchSingleOrNull()
+        .map((row) => row?.note);
+  }
+
+  Future<void> setHomeworkNote(
+    String courseId,
+    String entryId,
+    String note,
+  ) async {
+    await into(homeworkNotesTable).insert(
+      HomeworkNotesTableCompanion.insert(
+        courseId: courseId,
+        entryId: entryId,
+        note: note,
+      ),
+      mode: InsertMode.insertOrReplace,
+    );
+  }
+
+  Future<void> deleteHomeworkNote(String courseId, String entryId) async {
+    await (delete(homeworkNotesTable)
+          ..where(
+            (t) => t.courseId.equals(courseId) & t.entryId.equals(entryId),
+          ))
+        .go();
   }
 }
 

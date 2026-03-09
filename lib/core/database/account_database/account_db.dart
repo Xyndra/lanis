@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../models/account_types.dart';
 import '../../../utils/logger.dart';
+import '../../linux_config.dart';
 import '../../sph/sph.dart';
 import 'kv_defaults.dart';
 
@@ -268,7 +269,15 @@ class AccountDatabase extends _$AccountDatabase {
     return driftDatabase(
       name: 'accounts_database',
       native: DriftNativeOptions(
-        databaseDirectory: () async => await getApplicationCacheDirectory(),
+        databaseDirectory: () async {
+          final custom = LinuxConfig.dataDir;
+          if (custom != null) {
+            final dir = Directory(custom);
+            dir.createSync(recursive: true);
+            return dir;
+          }
+          return getApplicationCacheDirectory();
+        },
       ),
     );
   }

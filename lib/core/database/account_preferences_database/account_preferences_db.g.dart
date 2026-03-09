@@ -1118,6 +1118,275 @@ class NotificationsDuplicatesTableCompanion
   }
 }
 
+class $HomeworkNotesTableTable extends HomeworkNotesTable
+    with TableInfo<$HomeworkNotesTableTable, HomeworkNotesTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HomeworkNotesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _courseIdMeta = const VerificationMeta(
+    'courseId',
+  );
+  @override
+  late final GeneratedColumn<String> courseId = GeneratedColumn<String>(
+    'course_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entryIdMeta = const VerificationMeta(
+    'entryId',
+  );
+  @override
+  late final GeneratedColumn<String> entryId = GeneratedColumn<String>(
+    'entry_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [courseId, entryId, note];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'homework_notes_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<HomeworkNotesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('course_id')) {
+      context.handle(
+        _courseIdMeta,
+        courseId.isAcceptableOrUnknown(data['course_id']!, _courseIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_courseIdMeta);
+    }
+    if (data.containsKey('entry_id')) {
+      context.handle(
+        _entryIdMeta,
+        entryId.isAcceptableOrUnknown(data['entry_id']!, _entryIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entryIdMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_noteMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {courseId, entryId};
+  @override
+  HomeworkNotesTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HomeworkNotesTableData(
+      courseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}course_id'],
+      )!,
+      entryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entry_id'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      )!,
+    );
+  }
+
+  @override
+  $HomeworkNotesTableTable createAlias(String alias) {
+    return $HomeworkNotesTableTable(attachedDatabase, alias);
+  }
+}
+
+class HomeworkNotesTableData extends DataClass
+    implements Insertable<HomeworkNotesTableData> {
+  final String courseId;
+  final String entryId;
+  final String note;
+  const HomeworkNotesTableData({
+    required this.courseId,
+    required this.entryId,
+    required this.note,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['course_id'] = Variable<String>(courseId);
+    map['entry_id'] = Variable<String>(entryId);
+    map['note'] = Variable<String>(note);
+    return map;
+  }
+
+  HomeworkNotesTableCompanion toCompanion(bool nullToAbsent) {
+    return HomeworkNotesTableCompanion(
+      courseId: Value(courseId),
+      entryId: Value(entryId),
+      note: Value(note),
+    );
+  }
+
+  factory HomeworkNotesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HomeworkNotesTableData(
+      courseId: serializer.fromJson<String>(json['courseId']),
+      entryId: serializer.fromJson<String>(json['entryId']),
+      note: serializer.fromJson<String>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'courseId': serializer.toJson<String>(courseId),
+      'entryId': serializer.toJson<String>(entryId),
+      'note': serializer.toJson<String>(note),
+    };
+  }
+
+  HomeworkNotesTableData copyWith({
+    String? courseId,
+    String? entryId,
+    String? note,
+  }) => HomeworkNotesTableData(
+    courseId: courseId ?? this.courseId,
+    entryId: entryId ?? this.entryId,
+    note: note ?? this.note,
+  );
+  HomeworkNotesTableData copyWithCompanion(HomeworkNotesTableCompanion data) {
+    return HomeworkNotesTableData(
+      courseId: data.courseId.present ? data.courseId.value : this.courseId,
+      entryId: data.entryId.present ? data.entryId.value : this.entryId,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HomeworkNotesTableData(')
+          ..write('courseId: $courseId, ')
+          ..write('entryId: $entryId, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(courseId, entryId, note);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HomeworkNotesTableData &&
+          other.courseId == this.courseId &&
+          other.entryId == this.entryId &&
+          other.note == this.note);
+}
+
+class HomeworkNotesTableCompanion
+    extends UpdateCompanion<HomeworkNotesTableData> {
+  final Value<String> courseId;
+  final Value<String> entryId;
+  final Value<String> note;
+  final Value<int> rowid;
+  const HomeworkNotesTableCompanion({
+    this.courseId = const Value.absent(),
+    this.entryId = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HomeworkNotesTableCompanion.insert({
+    required String courseId,
+    required String entryId,
+    required String note,
+    this.rowid = const Value.absent(),
+  }) : courseId = Value(courseId),
+       entryId = Value(entryId),
+       note = Value(note);
+  static Insertable<HomeworkNotesTableData> custom({
+    Expression<String>? courseId,
+    Expression<String>? entryId,
+    Expression<String>? note,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (courseId != null) 'course_id': courseId,
+      if (entryId != null) 'entry_id': entryId,
+      if (note != null) 'note': note,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  HomeworkNotesTableCompanion copyWith({
+    Value<String>? courseId,
+    Value<String>? entryId,
+    Value<String>? note,
+    Value<int>? rowid,
+  }) {
+    return HomeworkNotesTableCompanion(
+      courseId: courseId ?? this.courseId,
+      entryId: entryId ?? this.entryId,
+      note: note ?? this.note,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (courseId.present) {
+      map['course_id'] = Variable<String>(courseId.value);
+    }
+    if (entryId.present) {
+      map['entry_id'] = Variable<String>(entryId.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HomeworkNotesTableCompanion(')
+          ..write('courseId: $courseId, ')
+          ..write('entryId: $entryId, ')
+          ..write('note: $note, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AccountPreferencesDatabase extends GeneratedDatabase {
   _$AccountPreferencesDatabase(QueryExecutor e) : super(e);
   $AccountPreferencesDatabaseManager get managers =>
@@ -1129,6 +1398,8 @@ abstract class _$AccountPreferencesDatabase extends GeneratedDatabase {
   late final $AppletDataTable appletData = $AppletDataTable(this);
   late final $NotificationsDuplicatesTableTable notificationsDuplicatesTable =
       $NotificationsDuplicatesTableTable(this);
+  late final $HomeworkNotesTableTable homeworkNotesTable =
+      $HomeworkNotesTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1138,6 +1409,7 @@ abstract class _$AccountPreferencesDatabase extends GeneratedDatabase {
     appletPreferencesTable,
     appletData,
     notificationsDuplicatesTable,
+    homeworkNotesTable,
   ];
 }
 
@@ -1870,6 +2142,181 @@ typedef $$NotificationsDuplicatesTableTableProcessedTableManager =
       NotificationsDuplicatesTableData,
       PrefetchHooks Function()
     >;
+typedef $$HomeworkNotesTableTableCreateCompanionBuilder =
+    HomeworkNotesTableCompanion Function({
+      required String courseId,
+      required String entryId,
+      required String note,
+      Value<int> rowid,
+    });
+typedef $$HomeworkNotesTableTableUpdateCompanionBuilder =
+    HomeworkNotesTableCompanion Function({
+      Value<String> courseId,
+      Value<String> entryId,
+      Value<String> note,
+      Value<int> rowid,
+    });
+
+class $$HomeworkNotesTableTableFilterComposer
+    extends Composer<_$AccountPreferencesDatabase, $HomeworkNotesTableTable> {
+  $$HomeworkNotesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get courseId => $composableBuilder(
+    column: $table.courseId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entryId => $composableBuilder(
+    column: $table.entryId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$HomeworkNotesTableTableOrderingComposer
+    extends Composer<_$AccountPreferencesDatabase, $HomeworkNotesTableTable> {
+  $$HomeworkNotesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get courseId => $composableBuilder(
+    column: $table.courseId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entryId => $composableBuilder(
+    column: $table.entryId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$HomeworkNotesTableTableAnnotationComposer
+    extends Composer<_$AccountPreferencesDatabase, $HomeworkNotesTableTable> {
+  $$HomeworkNotesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get courseId =>
+      $composableBuilder(column: $table.courseId, builder: (column) => column);
+
+  GeneratedColumn<String> get entryId =>
+      $composableBuilder(column: $table.entryId, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+}
+
+class $$HomeworkNotesTableTableTableManager
+    extends
+        RootTableManager<
+          _$AccountPreferencesDatabase,
+          $HomeworkNotesTableTable,
+          HomeworkNotesTableData,
+          $$HomeworkNotesTableTableFilterComposer,
+          $$HomeworkNotesTableTableOrderingComposer,
+          $$HomeworkNotesTableTableAnnotationComposer,
+          $$HomeworkNotesTableTableCreateCompanionBuilder,
+          $$HomeworkNotesTableTableUpdateCompanionBuilder,
+          (
+            HomeworkNotesTableData,
+            BaseReferences<
+              _$AccountPreferencesDatabase,
+              $HomeworkNotesTableTable,
+              HomeworkNotesTableData
+            >,
+          ),
+          HomeworkNotesTableData,
+          PrefetchHooks Function()
+        > {
+  $$HomeworkNotesTableTableTableManager(
+    _$AccountPreferencesDatabase db,
+    $HomeworkNotesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HomeworkNotesTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HomeworkNotesTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HomeworkNotesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> courseId = const Value.absent(),
+                Value<String> entryId = const Value.absent(),
+                Value<String> note = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => HomeworkNotesTableCompanion(
+                courseId: courseId,
+                entryId: entryId,
+                note: note,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String courseId,
+                required String entryId,
+                required String note,
+                Value<int> rowid = const Value.absent(),
+              }) => HomeworkNotesTableCompanion.insert(
+                courseId: courseId,
+                entryId: entryId,
+                note: note,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$HomeworkNotesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AccountPreferencesDatabase,
+      $HomeworkNotesTableTable,
+      HomeworkNotesTableData,
+      $$HomeworkNotesTableTableFilterComposer,
+      $$HomeworkNotesTableTableOrderingComposer,
+      $$HomeworkNotesTableTableAnnotationComposer,
+      $$HomeworkNotesTableTableCreateCompanionBuilder,
+      $$HomeworkNotesTableTableUpdateCompanionBuilder,
+      (
+        HomeworkNotesTableData,
+        BaseReferences<
+          _$AccountPreferencesDatabase,
+          $HomeworkNotesTableTable,
+          HomeworkNotesTableData
+        >,
+      ),
+      HomeworkNotesTableData,
+      PrefetchHooks Function()
+    >;
 
 class $AccountPreferencesDatabaseManager {
   final _$AccountPreferencesDatabase _db;
@@ -1889,4 +2336,6 @@ class $AccountPreferencesDatabaseManager {
         _db,
         _db.notificationsDuplicatesTable,
       );
+  $$HomeworkNotesTableTableTableManager get homeworkNotesTable =>
+      $$HomeworkNotesTableTableTableManager(_db, _db.homeworkNotesTable);
 }
