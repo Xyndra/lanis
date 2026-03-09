@@ -141,7 +141,7 @@ class _QuickActionsState extends SettingsColoursState<QuickActions> {
                   ),
                   SizedBox(height: 8.0),
                   Text(
-                    AppLocalizations.of(context).restartRequired,
+                    AppLocalizations.of(context).restartRequiredDesc,
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),

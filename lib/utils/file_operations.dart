@@ -131,30 +131,7 @@ void launchFile(BuildContext context, FileInfo file, Function callback) {
   final String filename = file.name ?? AppLocalizations.of(context).unknownFile;
 
   if (file.isLocal) {
-    // For local files, open directly
-    OpenFile.open(file.localPath).then((result) {
-      //sketchy, but "open_file" left us no other choice
-      if (result.message.contains("No APP found to open this file") &&
-          context.mounted) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text("${AppLocalizations.of(context).error}!"),
-            icon: const Icon(Icons.error),
-            content: Text(AppLocalizations.of(context).noAppToOpen),
-            actions: [
-              FilledButton(
-                child: const Text('Ok'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-        );
-      }
-      callback();
-    });
+    _openFilePath(context, file.localPath!, callback);
     return;
   }
 
@@ -165,37 +142,63 @@ void launchFile(BuildContext context, FileInfo file, Function callback) {
     builder: (BuildContext context) => downloadDialog(context, file.size),
   );
 
-  sph!.storage.downloadFile(file.url.toString(), filename).then((
-    filepath,
-  ) async {
+  sph!.storage.downloadFile(file.url.toString(), filename).then((filepath) async {
     if (context.mounted) Navigator.of(context).pop();
 
-    if (filepath == "" && context.mounted) {
+    if (filepath.isEmpty && context.mounted) {
       showDialog(context: context, builder: (context) => errorDialog(context));
     } else {
-      final result = await OpenFile.open(filepath);
-      //sketchy, but "open_file" left us no other choice
-      if (result.message.contains("No APP found to open this file") &&
-          context.mounted) {
+      _openFilePath(context, filepath, callback);
+    }
+  });
+}
+
+/// Opens a local file using the platform's default application.
+/// On Linux (incl. Flatpak) uses url_launcher / XDG portal.
+/// On other platforms uses open_file.
+void _openFilePath(BuildContext context, String filepath, Function callback) {
+  if (Platform.isLinux) {
+    launchUrl(Uri.file(filepath)).then((_) {
+      callback();
+    }).catchError((_) {
+      if (context.mounted) {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Text("${AppLocalizations.of(context).error}!"),
+          builder: (ctx) => AlertDialog(
+            title: Text("${AppLocalizations.of(ctx).error}!"),
             icon: const Icon(Icons.error),
-            content: Text(AppLocalizations.of(context).noAppToOpen),
+            content: Text(AppLocalizations.of(ctx).noAppToOpen),
             actions: [
               FilledButton(
                 child: const Text('Ok'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+                onPressed: () => Navigator.of(ctx).pop(),
               ),
             ],
           ),
         );
       }
-      callback();
+    });
+    return;
+  }
+  OpenFile.open(filepath).then((result) {
+    if (result.message.contains("No APP found to open this file") &&
+        context.mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("${AppLocalizations.of(context).error}!"),
+          icon: const Icon(Icons.error),
+          content: Text(AppLocalizations.of(context).noAppToOpen),
+          actions: [
+            FilledButton(
+              child: const Text('Ok'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
     }
+    callback();
   });
 }
 

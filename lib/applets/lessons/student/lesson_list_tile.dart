@@ -5,6 +5,7 @@ import 'package:lanis/generated/l10n.dart';
 import '../../../models/lessons.dart';
 import 'course_overview.dart';
 import 'homework_box.dart';
+import '../../../widgets/lesson_note_button.dart';
 
 class LessonListTile extends StatefulWidget {
   final Lesson lesson;
@@ -89,7 +90,14 @@ class _LessonListTileState extends State<LessonListTile> {
                   onTap: _navigateToCourse,
                 ),
                 const SizedBox(height: 4),
-              ],
+              ] else if (widget.lesson.currentEntry != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: LessonNoteButton(
+                    courseID: widget.lesson.courseID,
+                    entryID: widget.lesson.currentEntry!.entryID,
+                  ),
+                ),
               const SizedBox(height: 8),
               Row(
                 children: [

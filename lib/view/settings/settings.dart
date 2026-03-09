@@ -392,6 +392,9 @@ class _SettingsScreenState extends SettingsColoursState<SettingsScreen> {
             AppLocalizations.of(context).quickActions) {
           return QuickActions(showBackButton: !isTablet);
         } else if (tile.title(context) ==
+            AppLocalizations.of(context).linuxSettings) {
+          return LinuxSettings(showBackButton: !isTablet);
+        } else if (tile.title(context) ==
             AppLocalizations.of(context).inThisUpdate) {
           return FutureBuilder(
             future: showLocalUpdateInfo(context, dialog: false),

@@ -8,6 +8,7 @@ import '../../../models/lessons.dart';
 import '../../../utils/file_operations.dart';
 import '../../../widgets/format_text.dart';
 import 'homework_box.dart';
+import '../../../widgets/lesson_note_button.dart';
 
 class CourseOverviewAnsicht extends StatefulWidget {
   final String dataFetchURL;
@@ -397,6 +398,14 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                   HomeworkBox(
                                     currentEntry: data!.history[index],
                                     courseID: data!.courseID,
+                                  )
+                                else
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: LessonNoteButton(
+                                      courseID: data!.courseID,
+                                      entryID: data!.history[index].entryID,
+                                    ),
                                   ),
                                 Visibility(
                                   visible: files.isNotEmpty,

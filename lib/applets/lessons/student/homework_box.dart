@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lanis/generated/l10n.dart';
+import 'package:lanis/widgets/lesson_note_button.dart';
 
 import '../../../core/sph/sph.dart';
 import '../../../models/lessons.dart';
@@ -55,54 +56,6 @@ class _HomeworkBoxState extends State<HomeworkBox> with WidgetsBindingObserver {
     });
   }
 
-  Future<void> _editNote(String? currentNote) async {
-    final controller = TextEditingController(text: currentNote ?? '');
-    final saved = await showDialog<String?>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(ctx).homeworkNoteTitle),
-        content: TextField(
-          controller: controller,
-          minLines: 3,
-          maxLines: 8,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: AppLocalizations.of(ctx).homeworkNoteHint,
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          if (currentNote != null && currentNote.isNotEmpty)
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, ''),
-              child: Text(AppLocalizations.of(ctx).homeworkNoteDelete),
-            ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(ctx).cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: Text(AppLocalizations.of(ctx).save),
-          ),
-        ],
-      ),
-    );
-    if (saved == null || !mounted) return;
-    if (saved.isEmpty) {
-      await sph!.prefs.deleteHomeworkNote(
-        widget.courseID,
-        widget.currentEntry.entryID,
-      );
-    } else {
-      await sph!.prefs.setHomeworkNote(
-        widget.courseID,
-        widget.currentEntry.entryID,
-        saved,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -147,6 +100,10 @@ class _HomeworkBoxState extends State<HomeworkBox> with WidgetsBindingObserver {
                   ],
                 ),
                 const Spacer(),
+                LessonNoteButton(
+                  courseID: widget.courseID,
+                  entryID: widget.currentEntry.entryID,
+                ),
                 Checkbox(
                   visualDensity: VisualDensity.compact,
                   value: widget.currentEntry.homework!.homeWorkDone,
@@ -236,66 +193,6 @@ class _HomeworkBoxState extends State<HomeworkBox> with WidgetsBindingObserver {
                     ),
                   ),
               ],
-            ),
-            // Custom note section — streamed from DB
-            StreamBuilder<String?>(
-              stream: sph!.prefs.watchHomeworkNote(
-                widget.courseID,
-                widget.currentEntry.entryID,
-              ),
-              builder: (context, snapshot) {
-                final note = snapshot.data;
-                return GestureDetector(
-                  onTap: () => _editNote(note),
-                  child: Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(top: 6),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Color.alphaBlend(
-                        Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.12),
-                        Theme.of(context).cardColor,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          note != null && note.isNotEmpty
-                              ? Icons.edit_note
-                              : Icons.note_add_outlined,
-                          size: 18,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: note != null && note.isNotEmpty
-                              ? Text(
-                                  note,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                )
-                              : Text(
-                                  AppLocalizations.of(context).homeworkNoteAdd,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
             ),
           ],
         ),

@@ -10,7 +10,8 @@ import 'package:path_provider/path_provider.dart';
 import '../settings_page_builder.dart';
 
 class LinuxSettings extends SettingsColours {
-  const LinuxSettings({super.key});
+  final bool showBackButton;
+  const LinuxSettings({super.key, this.showBackButton = true});
 
   @override
   State<LinuxSettings> createState() => _LinuxSettingsState();
@@ -167,6 +168,7 @@ class _LinuxSettingsState extends SettingsColoursState<LinuxSettings> {
   Widget build(BuildContext context) {
     return SettingsPage(
       backgroundColor: backgroundColor,
+      showBackButton: widget.showBackButton,
       title: Text(AppLocalizations.of(context).linuxSettings),
       children: [
         Padding(
