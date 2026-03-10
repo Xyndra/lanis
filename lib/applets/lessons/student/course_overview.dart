@@ -293,9 +293,7 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                   child: Row(
                                     children: [
                                       const Padding(
-                                        padding: EdgeInsets.only(
-                                          right: 4.0,
-                                        ),
+                                        padding: EdgeInsets.only(right: 4.0),
                                         child: Icon(
                                           Icons.calendar_today,
                                           size: 15,
@@ -308,9 +306,7 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                           dateFormat.format(
                                             data!.history[index].topicDate!,
                                           ),
-                                          data!
-                                                  .history[index]
-                                                  .schoolHours ??
+                                          data!.history[index].schoolHours ??
                                               "",
                                         ),
                                         style: Theme.of(
@@ -318,8 +314,7 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                         ).textTheme.labelSmall,
                                       ),
                                       const Spacer(),
-                                      if (data!.history[index].presence !=
-                                          null)
+                                      if (data!.history[index].presence != null)
                                         Row(
                                           children: [
                                             Text(
@@ -360,12 +355,10 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                             ),
                                           ],
                                         ),
-                                      if (data!.history[index].homework ==
-                                          null)
+                                      if (data!.history[index].homework == null)
                                         LessonNoteButton(
                                           courseID: data!.courseID,
-                                          entryID:
-                                              data!.history[index].entryID,
+                                          entryID: data!.history[index].entryID,
                                         ),
                                     ],
                                   ),
@@ -400,7 +393,7 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                     courseID: data!.courseID,
                                   )
                                 else
-                                  LessonNoteContent(
+                                  LessonNoteBox(
                                     courseID: data!.courseID,
                                     entryID: data!.history[index].entryID,
                                   ),

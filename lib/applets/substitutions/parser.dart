@@ -17,11 +17,11 @@ class SubstitutionsParser extends AppletParser<SubstitutionPlan> {
 
   SubstitutionFilter localFilter = {};
 
-  saveFilterToStorage() {
+  void saveFilterToStorage() {
     sph.prefs.kv.setAppletValue('vertretungsplan.php', 'filter', localFilter);
   }
 
-  loadFilterFromStorage() async {
+  Future<void> loadFilterFromStorage() async {
     localFilter =
         (await sph.prefs.kv.getAppletValue('vertretungsplan.php', 'filter')
                 as Map<String, dynamic>?)

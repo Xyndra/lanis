@@ -72,8 +72,7 @@ class _LessonListTileState extends State<LessonListTile> {
                 const Icon(Icons.attach_file, size: 16),
               ],
               // Note button in title row for entries without homework
-              if (widget.lesson.currentEntry != null &&
-                  widget.lesson.currentEntry!.homework == null) ...[
+              if (widget.lesson.currentEntry != null) ...[
                 const SizedBox(width: 4),
                 LessonNoteButton(
                   courseID: widget.lesson.courseID,
@@ -100,8 +99,9 @@ class _LessonListTileState extends State<LessonListTile> {
                   onTap: _navigateToCourse,
                 ),
                 const SizedBox(height: 4),
-              ] else if (widget.lesson.currentEntry != null) ...[
-                LessonNoteContent(
+              ],
+              if (widget.lesson.currentEntry != null) ...[
+                LessonNoteBox(
                   courseID: widget.lesson.courseID,
                   entryID: widget.lesson.currentEntry!.entryID,
                 ),
@@ -126,8 +126,10 @@ class _LessonListTileState extends State<LessonListTile> {
                   const Spacer(),
                   Text(
                     widget.lesson.currentEntry?.topicDate != null
-                      ? dateFormat.format(widget.lesson.currentEntry!.topicDate!)
-                      : AppLocalizations.of(context).noEntries
+                        ? dateFormat.format(
+                            widget.lesson.currentEntry!.topicDate!,
+                          )
+                        : AppLocalizations.of(context).noEntries,
                   ),
                   const Icon(Icons.calendar_today, size: 16),
                 ],

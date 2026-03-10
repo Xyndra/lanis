@@ -10,7 +10,7 @@ import 'package:lanis/view/settings/settings_page_builder.dart';
 
 class QuickActions extends StatefulWidget {
   final bool showBackButton;
-  const QuickActions({super.key, required bool this.showBackButton});
+  const QuickActions({super.key, required this.showBackButton});
 
   @override
   State<QuickActions> createState() => _QuickActionsState();

@@ -101,10 +101,6 @@ class _HomeworkBoxState extends State<HomeworkBox> with WidgetsBindingObserver {
                   ],
                 ),
                 const Spacer(),
-                LessonNoteButton(
-                  courseID: widget.courseID,
-                  entryID: widget.currentEntry.entryID,
-                ),
                 Checkbox(
                   visualDensity: VisualDensity.compact,
                   value: widget.currentEntry.homework!.homeWorkDone,
@@ -168,7 +164,9 @@ class _HomeworkBoxState extends State<HomeworkBox> with WidgetsBindingObserver {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Color.alphaBlend(
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.2),
                       Theme.of(context).cardColor,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -194,10 +192,6 @@ class _HomeworkBoxState extends State<HomeworkBox> with WidgetsBindingObserver {
                     ),
                   ),
               ],
-            ),
-            LessonNoteContent(
-              courseID: widget.courseID,
-              entryID: widget.currentEntry.entryID,
             ),
           ],
         ),

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Calls the native GTK colour chooser dialog on Linux.
@@ -22,8 +21,8 @@ Future<Color?> pickColorNative(Color initial) async {
 
 String _colorToHex(Color color) {
   return '${(color.r * 255).round().toRadixString(16).padLeft(2, '0')}'
-      '${(color.g * 255).round().toRadixString(16).padLeft(2, '0')}'
-      '${(color.b * 255).round().toRadixString(16).padLeft(2, '0')}'
+          '${(color.g * 255).round().toRadixString(16).padLeft(2, '0')}'
+          '${(color.b * 255).round().toRadixString(16).padLeft(2, '0')}'
       .toUpperCase();
 }
 

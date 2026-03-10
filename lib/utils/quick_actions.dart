@@ -19,7 +19,9 @@ class QuickActionsStartUp {
 
   QuickActionsStartUp() {
     if (!Platform.isAndroid && !Platform.isIOS) {
-      if (!_initializationCompleter.isCompleted) _initializationCompleter.complete();
+      if (!_initializationCompleter.isCompleted) {
+        _initializationCompleter.complete();
+      }
       _initialized = true;
       return;
     }
@@ -36,11 +38,12 @@ class QuickActionsStartUp {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             logger.i('Opening applet: ${applet.appletPhpUrl}');
             Destination destination = Destination.fromAppletDefinition(applet);
-            if (homeKey.currentContext != null)
+            if (homeKey.currentContext != null) {
               Navigator.popUntil(
                 homeKey.currentContext!,
                 (route) => route.isFirst,
               );
+            }
             if (destination.enableBottomNavigation) {
               int appletIndex = AppDefinitions.getIndexByPhpIdentifier(
                 applet.appletPhpUrl,

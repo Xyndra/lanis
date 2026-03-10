@@ -135,7 +135,7 @@ class _UploadScreenState extends State<UploadScreen> {
             appBar: AppBar(title: Text(widget.name)),
             floatingActionButton: ValueListenableBuilder(
               valueListenable: _addedFiles,
-              builder: (_, filesLength, __) {
+              builder: (_, filesLength, _) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,

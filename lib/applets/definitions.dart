@@ -93,13 +93,13 @@ class AppDefinitions {
     );
   }
 
-  static getByPhpIdentifier(String phpIdentifier) {
+  static AppletDefinition getByPhpIdentifier(String phpIdentifier) {
     return applets.firstWhere(
       (element) => element.appletPhpUrl == phpIdentifier,
     );
   }
 
-  static getIndexByPhpIdentifier(String phpIdentifier) {
+  static int getIndexByPhpIdentifier(String phpIdentifier) {
     return applets.indexWhere(
       (element) => element.appletPhpUrl == phpIdentifier,
     );

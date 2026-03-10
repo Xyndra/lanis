@@ -600,7 +600,7 @@ enum SearchFunction {
         entry.date.toLowerCase().contains(search.toLowerCase()),
   };
 
-  call(OverviewEntry entry, String search) {
+  bool call(OverviewEntry entry, String search) {
     return functions[this]!(entry, search);
   }
 }

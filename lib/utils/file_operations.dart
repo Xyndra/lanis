@@ -41,10 +41,10 @@ class FileInfo {
 
   /// Create a file info for a local file
   FileInfo.local({String? name, String? size, required String filePath})
-    : this.name = name ?? filePath.split('/').last,
-      this.size = size,
-      this.localPath = filePath,
-      this.url = null;
+    : name = name ?? filePath.split('/').last,
+      size = size,
+      localPath = filePath,
+      url = null;
 
   /// Returns true if this represents a local file
   bool get isLocal => localPath != null;
@@ -143,7 +143,9 @@ void launchFile(BuildContext context, FileInfo file, Function callback) {
     builder: (BuildContext context) => downloadDialog(context, file.size),
   );
 
-  sph!.storage.downloadFile(file.url.toString(), filename).then((filepath) async {
+  sph!.storage.downloadFile(file.url.toString(), filename).then((
+    filepath,
+  ) async {
     if (context.mounted) Navigator.of(context).pop();
 
     if (filepath.isEmpty && context.mounted) {
@@ -165,7 +167,8 @@ void launchFile(BuildContext context, FileInfo file, Function callback) {
 Future<String> _portalAccessiblePath(String path) async {
   if (Platform.environment['FLATPAK_ID'] == null) return path;
   try {
-    final downloadsDir = xdg.getUserDirectory('DOWNLOAD') ??
+    final downloadsDir =
+        xdg.getUserDirectory('DOWNLOAD') ??
         Directory(p.join(Platform.environment['HOME'] ?? '', 'Downloads'));
     final tmpDir = Directory(p.join(downloadsDir.path, '.lanis-tmp'));
     tmpDir.createSync(recursive: true);
@@ -262,7 +265,8 @@ Future<void> _saveFileLinux(
   Function callback,
 ) async {
   // Resolve the XDG download directory (falls back to ~/Downloads).
-  final downloadsDir = xdg.getUserDirectory('DOWNLOAD') ??
+  final downloadsDir =
+      xdg.getUserDirectory('DOWNLOAD') ??
       Directory(p.join(Platform.environment['HOME'] ?? '', 'Downloads'));
 
   Future<void> copyToDownloads(String sourcePath) async {
@@ -286,8 +290,10 @@ Future<void> _saveFileLinux(
     builder: (ctx) => downloadDialog(ctx, file.size),
   );
 
-  final filepath =
-      await sph!.storage.downloadFile(file.url.toString(), filename);
+  final filepath = await sph!.storage.downloadFile(
+    file.url.toString(),
+    filename,
+  );
 
   if (context.mounted) Navigator.of(context).pop();
 

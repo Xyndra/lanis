@@ -240,11 +240,12 @@ class _CourseFolderHistoryEntryFileChipState
         if (result != null) {
           switch (result) {
             case 'open':
-              if (context.mounted)
+              if (context.mounted) {
                 showFileModal(
                   context,
                   FileInfo(name: widget.file.name, url: widget.file.url),
                 );
+              }
               break;
             case 'visibility':
               changeRemoteVisibility();
