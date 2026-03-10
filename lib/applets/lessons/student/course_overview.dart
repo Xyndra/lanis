@@ -355,11 +355,10 @@ class _CourseOverviewAnsichtState extends State<CourseOverviewAnsicht> {
                                             ),
                                           ],
                                         ),
-                                      if (data!.history[index].homework == null)
-                                        LessonNoteButton(
-                                          courseID: data!.courseID,
-                                          entryID: data!.history[index].entryID,
-                                        ),
+                                      LessonNoteButton(
+                                        courseID: data!.courseID,
+                                        entryID: data!.history[index].entryID,
+                                      ),
                                     ],
                                   ),
                                 ),
