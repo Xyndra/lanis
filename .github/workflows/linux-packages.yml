@@ -82,15 +82,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.local/share/flatpak/repo
-          key: flatpak-gnome-47-${{ runner.os }}
+          key: flatpak-gnome-48-${{ runner.os }}
 
       - name: Add Flathub and install GNOME runtime
         run: |
           flatpak remote-add --user --if-not-exists flathub \
             https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install --user --noninteractive -y flathub \
-            org.gnome.Platform//47 \
-            org.gnome.Sdk//47
+            org.gnome.Platform//48 \
+            org.gnome.Sdk//48
 
       - name: Build Flatpak bundle
         run: |
