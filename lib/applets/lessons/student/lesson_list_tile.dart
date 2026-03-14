@@ -5,8 +5,8 @@ import 'package:lanis/generated/l10n.dart';
 import '../../../models/lessons.dart';
 import 'course_overview.dart';
 import 'homework_box.dart';
-import '../../../widgets/lesson_note_button.dart';
-import '../../../widgets/lesson_note_content.dart';
+import 'lesson_note_button.dart';
+import 'lesson_note_content.dart';
 
 class LessonListTile extends StatefulWidget {
   final Lesson lesson;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lanis/generated/l10n.dart';
 
-import '../core/sph/sph.dart';
+import '../../../core/sph/sph.dart';
 
 /// A compact icon button that lets the user attach a personal note to any
 /// lesson entry (identified by [courseID] + [entryID]).

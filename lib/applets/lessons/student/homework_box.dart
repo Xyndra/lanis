@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lanis/generated/l10n.dart';
-import 'package:lanis/widgets/lesson_note_button.dart';
 
 import '../../../core/sph/sph.dart';
 import '../../../models/lessons.dart';
 import '../../../widgets/format_text.dart';
-import '../../../widgets/lesson_note_content.dart';
 
 class HomeworkBox extends StatefulWidget {
   final CurrentEntry currentEntry;

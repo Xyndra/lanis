@@ -1,5 +1,7 @@
 # Lanis Mobile
 
+# Achtung: Das ist eine Fork nur für Linux! Nur weil Code für andere Platformen da ist heißt das nicht das diese auch funktionieren. Eine Handyversion ist beim Orininal, oder bei den Links aus dieser README
+
 
 Deine App für das hessische Schulportal! In Zusammenarbeit mit dem staatlichen Schulamt für den Landkreis Groß-Gerau und den Main-Taunus-Kreis
 **Einsatz an zahlreichen Schulen in Hessen mit über 35 Tausend täglichen Nutzern.**

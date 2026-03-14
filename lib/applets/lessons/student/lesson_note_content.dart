@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lanis/generated/l10n.dart';
 import 'package:lanis/widgets/format_text.dart';
 
-import '../core/sph/sph.dart';
+import '../../../core/sph/sph.dart';
 
 /// Displays the note text for a lesson/homework entry as a compact row.
 /// Renders nothing when there is no note or the note is empty.
@@ -24,6 +24,7 @@ class LessonNoteBox extends StatelessWidget {
         final note = snapshot.data;
         if (note == null || note.isEmpty) return const SizedBox.shrink();
         return Container(
+          margin: EdgeInsets.only(top: 2),
           padding: EdgeInsets.only(top: 4),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.secondary,
